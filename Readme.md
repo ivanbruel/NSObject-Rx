@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/RxSwiftCommunity/NSObject-Rx.svg)](https://travis-ci.org/RxSwiftCommunity/NSObject-Rx)
+[![CircleCI](https://circleci.com/gh/RxSwiftCommunity/NSObject-Rx/tree/master.svg?style=svg)](https://circleci.com/gh/RxSwiftCommunity/NSObject-Rx/tree/master)
 
 NSObject+Rx
 ===========
@@ -21,34 +21,34 @@ Instead of adding a new property to every object, use this library to add it for
 
 ```swift
 thing
-  .bindTo(otherThing)
-  .addDisposableTo(rx_disposeBag)
+  .bind(to: otherThing)
+  .disposed(by: rx.disposeBag)
 ```
 
 Sweet.
 
 It'll work just like a property: when the instance is deinit'd, the `DisposeBag` gets disposed. It's also a read/write property, so you can use your own, too.
 
+If you want to add a DisposeBag to an Object that does not inherit from NSObject, you can also implement the protocol `HasDisposeBag`, and you're good to go. This protocol provides a default DisposeBag called `disposeBag`.
+
 Installing
 ----------
 
-####CocoaPods
+#### CocoaPods
 
-This works with RxSwift version 2, which is still prerelease, so you've gotta be fancy with your podfile.
+Add to your `Podfile`:
 
 ```ruby
-pod 'RxSwift', '~> 2.1'
 pod 'NSObject+Rx'
 ```
 
 And that'll be 👌
 
-####Carthage
+#### Carthage
 
 Add to `Cartfile`:
 ```
-github "ReactiveX/RxSwift" ~> 2.1
-github "RxSwiftCommunity/NSObject-Rx" ~> 1.3.0
+github "RxSwiftCommunity/NSObject-Rx"
 ```
 Add frameworks to your project (no need to "copy items if needed")
 
@@ -63,6 +63,11 @@ $(SRCROOT)/Carthage/Build/iOS/NSObject_Rx.framework
 ```
 
 And rule ✌️
+
+Contributing
+------------
+
+Source files are in the root directory. We use CocoaPods to develop, check out the unit tests in the Demo project.
 
 License
 -------

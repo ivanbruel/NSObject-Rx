@@ -3,29 +3,65 @@ import Nimble
 import RxSwift
 import NSObject_Rx
 
+class DisposeBagTest: HasDisposeBag {
+    var disposeBag: DisposeBag
+    
+    init(disposeBag: DisposeBag) {
+        self.disposeBag = disposeBag
+    }
+}
+
 class Test: QuickSpec {
     override func spec() {
-        it("respects setter") {
-            let subject = NSObject()
+        
+        it("should respects the setter") {
+            var subject = NSObject()
             let disposeBag = DisposeBag()
-            subject.rx_disposeBag = disposeBag
-
-            expect(subject.rx_disposeBag) === disposeBag
+            subject.rx.disposeBag = disposeBag
+            let subjectProtocol = DisposeBagTest(disposeBag: disposeBag)
+            subjectProtocol.disposeBag = disposeBag
+            expect(subject.rx.disposeBag) === disposeBag
+            expect(subjectProtocol.disposeBag) === disposeBag
         }
 
-        it("diposes when object is deallocated") {
+        it("should dispose when the object is deallocated") {
             var executed = false
+            var executedProtocol = false
+
             let variable = PublishSubject<Int>()
+            let variableProtocol = PublishSubject<Int>()
 
             // Force the bag to deinit (and dispose itself).
             do {
                 let subject = NSObject()
-                variable.subscribeNext { _ in
-                    executed = true
-                }.addDisposableTo(subject.rx_disposeBag)
+                let disposeBag = DisposeBag()
+                let subjectProtocol = DisposeBagTest(disposeBag: disposeBag)
+
+                variable.subscribe(onNext: { _ in executed = true })
+                    .disposed(by: subject.rx.disposeBag)
+                
+                variableProtocol.subscribe(onNext: { _ in executedProtocol = true })
+                    .disposed(by: subjectProtocol.disposeBag)
             }
 
             // Force a new value through the subscription to test its been disposed of.
+            variable.onNext(1)
+            variableProtocol.onNext(1)
+            expect(executed) == false
+            expect(executedProtocol) == false
+        }
+
+        it("should disposes using rx.disposeBag") {
+            var executed = false
+            let variable = PublishSubject<Int>()
+
+            do {
+                let subject = NSObject()
+
+                variable.subscribe(onNext: { _ in executed = true })
+                    .disposed(by: subject.rx.disposeBag)
+            }
+
             variable.onNext(1)
             expect(executed) == false
         }
